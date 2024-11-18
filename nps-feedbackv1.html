@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NPS Calculator with Feedback</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f8f9fa;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 20px auto;
+      padding: 20px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      color: #333;
+    }
+
+    p {
+      font-size: 1rem;
+      color: #555;
+    }
+
+    .radio-group {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 20px 0;
+    }
+
+    .radio-group input[type="radio"] {
+      display: none; /* Hide radio buttons */
+    }
+
+    .radio-group label {
+      padding: 10px 15px;
+      font-size: 1rem;
+      color: #333;
+      background: #f1f1f1;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .radio-group input[type="radio"]:checked + label {
+      background: #007bff;
+      color: white;
+      border-color: #0056b3;
+    }
+
+    textarea {
+      width: 100%;
+      height: 100px;
+      margin: 15px 0;
+      padding: 10px;
+      font-size: 1rem;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 1rem;
+      color: white;
+      background-color: #007bff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 5px;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .feedback-item {
+      text-align: left;
+      margin-top: 10px;
+    }
+
+    .feedback-item p {
+      margin: 5px 0;
+    }
+
+    .feedback-item span {
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="input-screen">
+      <h1>Net Promoter Score (NPS) Calculator</h1>
+      <p>How likely are you to recommend our product/service to your friends or family?</p>
+      <p><strong>0</strong> being Unlikely and <strong>10</strong> being Very Likely</p>
+      <div class="radio-group">
+        <!-- Radio buttons -->
+        <input type="radio" id="score-0" name="score" value="0">
+        <label for="score-0">0</label>
+        
+        <input type="radio" id="score-1" name="score" value="1">
+        <label for="score-1">1</label>
+        
+        <input type="radio" id="score-2" name="score" value="2">
+        <label for="score-2">2</label>
+        
+        <input type="radio" id="score-3" name="score" value="3">
+        <label for="score-3">3</label>
+        
+        <input type="radio" id="score-4" name="score" value="4">
+        <label for="score-4">4</label>
+        
+        <input type="radio" id="score-5" name="score" value="5">
+        <label for="score-5">5</label>
+        
+        <input type="radio" id="score-6" name="score" value="6">
+        <label for="score-6">6</label>
+        
+        <input type="radio" id="score-7" name="score" value="7">
+        <label for="score-7">7</label>
+        
+        <input type="radio" id="score-8" name="score" value="8">
+        <label for="score-8">8</label>
+        
+        <input type="radio" id="score-9" name="score" value="9">
+        <label for="score-9">9</label>
+        
+        <input type="radio" id="score-10" name="score" value="10">
+        <label for="score-10">10</label>
+      </div>
+      <textarea id="feedback" placeholder="Please explain your reason for choosing the above score"></textarea>
+      <div class="buttons">
+        <button id="submit-response">Submit Response</button>
+        <button id="calculate-nps">Calculate NPS</button>
+      </div>
+    </div>
+    <div id="result-screen" class="hidden">
+      <h1>NPS Result</h1>
+      <p id="result"></p>
+      <div id="feedback-list"></div>
+      <button id="reset-app">Reset</button>
+    </div>
+  </div>
+  <script>
+    const responses = [];
+    const feedbacks = [];
+    const inputScreen = document.getElementById('input-screen');
+    const resultScreen = document.getElementById('result-screen');
+    const resultText = document.getElementById('result');
+    const feedbackList = document.getElementById('feedback-list');
+
+    document.getElementById('submit-response').addEventListener('click', () => {
+      const selectedRadio = document.querySelector('input[name="score"]:checked');
+      const feedback = document.getElementById('feedback').value.trim();
+
+      if (!selectedRadio) {
+        alert('Please select a score between 0 and 10.');
+        return;
+      }
+
+      if (!feedback) {
+        alert('Please provide your feedback for the selected score.');
+        return;
+      }
+
+      const score = parseInt(selectedRadio.value, 10);
+      responses.push(score);
+      feedbacks.push(feedback);
+
+      // Clear the selection and feedback
+      selectedRadio.checked = false;
+      document.getElementById('feedback').value = '';
+
+      alert('Response submitted!');
+    });
+
+    document.getElementById('calculate-nps').addEventListener('click', () => {
+      if (responses.length === 0) {
+        alert('No responses to calculate.');
+        return;
+      }
+
+      const promoters = responses.filter(score => score >= 9).length;
+      const detractors = responses.filter(score => score <= 6).length;
+      const totalResponses = responses.length;
+
+      const nps = ((promoters - detractors) / totalResponses) * 100;
+
+      resultText.textContent = `Your NPS Score is: ${Math.round(nps)}`;
+      feedbackList.innerHTML = feedbacks
+        .map(
+          (feedback, index) => `
+            <div class="feedback-item">
+              <p><span>Score:</span> ${responses[index]}</p>
+              <p><span>Feedback:</span> ${feedback}</p>
+            </div>
+          `
+        )
+        .join('');
+
+      inputScreen.classList.add('hidden');
+      resultScreen.classList.remove('hidden');
+    });
+
+    document.getElementById('reset-app').addEventListener('click', () => {
+      responses.length = 0;
+      feedbacks.length = 0;
+      resultText.textContent = '';
+      feedbackList.innerHTML = '';
+      inputScreen.classList.remove('hidden');
+      resultScreen.classList.add('hidden');
+    });
+  </script>
+</body>
+</html>
